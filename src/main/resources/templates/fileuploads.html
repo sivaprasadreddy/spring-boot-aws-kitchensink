@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>File Uploads</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div id="app" class="container">
+        <form method="post" th:action="${'/fileuploads'}"
+              enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Select photo (PNG, JPG, JPEG)</label>
+                <div class="col-sm-10">
+                    <input type="file" id="file" name="file" class="form-control" required/>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-4">
+                    <input type="submit" class="btn btn-primary pull-right"
+                           value="Upload"/>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

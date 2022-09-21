@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  spring-boot-aws-demo:
+    #build: .
+    image: sivaprasadreddy/spring-boot-aws-demo
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - AWS_ENDPOINT_URI=http://localstack:4566
+    ports:
+      - "18080:8080"
+    restart: unless-stopped
+    depends_on:
+      - db
+      - localstack
+
+  db:
+    image: postgres:14.5-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5438:5432"
+    restart: unless-stopped
+
+  localstack:
+    image: localstack/localstack:1.0.1
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=s3,sqs,sns
+      - DEFAULT_REGION=us-east-1
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR}
+    volumes:
+      - "${TMPDIR:-/private}:/private"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - './localstack:/docker-entrypoint-initaws.d'
