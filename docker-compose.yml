@@ -28,11 +28,11 @@ services:
     restart: unless-stopped
 
   localstack:
-    image: localstack/localstack:1.0.1
+    image: localstack/localstack:1.1.0
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,sqs,sns
+      - SERVICES=s3,sqs,sns,secretsmanager
       - DEFAULT_REGION=us-east-1
       - DOCKER_HOST=unix:///var/run/docker.sock
       - HOST_TMP_FOLDER=${TMPDIR}

@@ -17,13 +17,13 @@ function build_image_jib() {
     ./mvnw clean package -DskipTests jib:dockerBuild -Dimage=sivaprasadreddy/spring-boot-aws-demo
 }
 
-function start_deps() {
+function start() {
     echo "Starting dependent docker containers...."
     docker-compose -f "${dc_file}" up -d ${deps}
     docker-compose -f "${dc_file}" logs -f
 }
 
-function start() {
+function start_all() {
     #build_api
     #build_image
     build_image_jib
