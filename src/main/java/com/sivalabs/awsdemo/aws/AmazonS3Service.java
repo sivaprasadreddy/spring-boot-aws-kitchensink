@@ -82,12 +82,12 @@ public class AmazonS3Service {
         }
     }
 
-    public void download(String bucketName, String key) throws IOException {
+    public byte[] download(String bucketName, String key) throws IOException {
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
 
-        s3Client.getObject(getObjectRequest).transferTo(new PrintStream(System.out));
+        return s3Client.getObject(getObjectRequest).readAllBytes();
     }
 }

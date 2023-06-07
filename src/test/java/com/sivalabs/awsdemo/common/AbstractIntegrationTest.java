@@ -4,14 +4,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.localstack.LocalStackContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.lifecycle.Startables;
+import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ContextConfiguration(initializers = {
-        PostgresDatabaseContainerInitializer.class,
-        LocalstackContainerInitializer.class
-})
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class AbstractIntegrationTest {
     @Autowired
@@ -19,4 +26,39 @@ public class AbstractIntegrationTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    static PostgreSQLContainer<?> postgres =
+            new PostgreSQLContainer<>("postgres:15.3-alpine");
+
+    static final LocalStackContainer localstack1 = new LocalStackContainer(
+            DockerImageName.parse("localstack/localstack:1.4.0"))
+            .withCopyFileToContainer(MountableFile.forHostPath("localstack/"), "/docker-entrypoint-initaws.d/")
+            .waitingFor(Wait.forLogMessage(".*LocalStack initialized successfully.*", 1))
+            ;
+
+    static final LocalStackContainer localstack = new LocalStackContainer(
+            DockerImageName.parse("localstack/localstack:2.1.0"))
+            .withCopyFileToContainer(MountableFile.forHostPath("localstack/"), "/etc/localstack/init/ready.d/")
+            //Following WaitStrategy with localstack:2.1.0 is not working
+            //.waitingFor(Wait.forLogMessage(".*LocalStack initialized successfully", 1))
+            ;
+
+    static {
+        Startables.deepStart(postgres, localstack).join();
+
+        System.setProperty("spring.config.import","optional:aws-secretsmanager:/secrets/api-secrets");
+    }
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+
+        registry.add("spring.cloud.aws.endpoint", localstack::getEndpoint);
+        registry.add("spring.cloud.aws.s3.path-style-access-enabled", ()-> true);
+        registry.add("spring.cloud.aws.credentials.access-key", localstack::getAccessKey);
+        registry.add("spring.cloud.aws.credentials.secret-key", localstack::getSecretKey);
+        //registry.add("spring.config.import",() -> "optional:aws-secretsmanager:/secrets/api-secrets");
+    }
 }

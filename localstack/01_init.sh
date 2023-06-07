@@ -15,6 +15,8 @@ awslocal sns create-topic --name testTopic
 echo "========= List of SNS Topics ============"
 awslocal sns list-topics
 
-awslocal secretsmanager create-secret --name /secrets/api-secrets --secret-string '{"api-key": "secret12345", "anotherSecret": "shhhh"}'
+awslocal secretsmanager create-secret --name /secrets/api-secrets --secret-string '{"app.apiKey": "secret12345", "anotherSecret": "shhhh"}'
 echo "========= List of secrets ============"
 awslocal secretsmanager list-secrets
+
+echo "LocalStack initialized successfully"

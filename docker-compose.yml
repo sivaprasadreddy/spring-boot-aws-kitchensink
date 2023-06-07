@@ -1,8 +1,8 @@
 version: '3.8'
 services:
-  spring-boot-aws-demo:
+  spring-boot-aws-kitchensink:
     #build: .
-    image: sivaprasadreddy/spring-boot-aws-demo
+    image: sivaprasadreddy/spring-boot-aws-kitchensink
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
@@ -18,7 +18,7 @@ services:
       - localstack
 
   db:
-    image: postgres:14.5-alpine
+    image: postgres:15.3-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   localstack:
-    image: localstack/localstack:1.1.0
+    image: localstack/localstack:2.1.0
     ports:
       - "4566:4566"
     environment:
@@ -39,4 +39,4 @@ services:
     volumes:
       - "${TMPDIR:-/private}:/private"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - './localstack:/docker-entrypoint-initaws.d'
+      - './localstack:/etc/localstack/init/ready.d'

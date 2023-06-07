@@ -1,6 +1,11 @@
-# SpringBoot AWS Demo
+# SpringBoot AWS Kitchensink
 
 ```shell
-$ ./run.sh start_deps
-$ ./mvnw spring-boot:run
+$ ./mvnw test
+
+# this will start postgres and LocalStack containers
+$ ./run.sh start 
+
+# start the application using local profile
+$ ./mvnw spring-boot:run -Dspring-boot.run.profiles=local 
 ```

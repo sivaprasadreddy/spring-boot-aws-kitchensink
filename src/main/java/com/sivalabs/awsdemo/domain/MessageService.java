@@ -3,10 +3,10 @@ package com.sivalabs.awsdemo.domain;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sivalabs.awsdemo.ApplicationProperties;
-import io.awspring.cloud.sqs.annotation.SqsListener;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.GetQueueUrlResponse;
 
@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class MessageService {
@@ -21,13 +22,6 @@ public class MessageService {
     private final SqsAsyncClient sqsAsyncClient;
     private final ObjectMapper objectMapper;
     private final ApplicationProperties properties;
-
-
-    @SqsListener(value = "${app.queueName}")
-    public void listen(Message message) {
-        log.info("Received message with id:{}, content:{}",message.getId(), message.getContent());
-        messageRepository.save(message);
-    }
 
     public Optional<Message> findByUuid(String uuid) {
         log.info("Fetching message with id:{}", uuid);
@@ -45,7 +39,7 @@ public class MessageService {
         return this.sqsAsyncClient.sendMessage(
                 request -> request.messageBody(getMessageBodyAsJson(message))
                                     .queueUrl(queueUrl))
-                .thenRun(() -> log.info("Sent message with id:{}",message.getId()));
+                .thenRun(() -> log.info("Sent message with uuid:{}",message.getUuid()));
     }
 
     private String getMessageBodyAsJson(Object payload) {

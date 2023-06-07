@@ -15,7 +15,7 @@ import static org.awaitility.Awaitility.await;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-class MessageControllerIT extends AbstractIntegrationTest {
+class MessageControllerTest extends AbstractIntegrationTest {
 
     @Autowired
     MessageService messageService;
@@ -28,7 +28,7 @@ class MessageControllerIT extends AbstractIntegrationTest {
                 .content(objectMapper.writeValueAsString(msg)))
                 .andExpect(status().isOk());
 
-        await().atMost(5, SECONDS).until(() -> {
+        await().atMost(30, SECONDS).until(() -> {
             Optional<Message> message = messageService.findByUuid(msg.getUuid());
             return message.isPresent();
         });
