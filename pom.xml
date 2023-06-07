@@ -11,9 +11,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.sivalabs</groupId>
-    <artifactId>spring-boot-aws-demo</artifactId>
+    <artifactId>spring-boot-aws-kitchensink</artifactId>
     <version>1.0.0</version>
-    <name>spring-boot-aws-demo</name>
+    <name>spring-boot-aws-kitchensink</name>
     <description>spring-boot-aws-demo</description>
     <properties>
         <java.version>17</java.version>
