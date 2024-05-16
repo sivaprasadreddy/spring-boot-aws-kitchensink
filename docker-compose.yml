@@ -18,7 +18,7 @@ services:
       - localstack
 
   db:
-    image: postgres:15.3-alpine
+    image: postgres:16-alpine
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   localstack:
-    image: localstack/localstack:2.1.0
+    image: localstack/localstack:3.4.0
     ports:
       - "4566:4566"
     environment:

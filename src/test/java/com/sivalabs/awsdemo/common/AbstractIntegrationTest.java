@@ -19,7 +19,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 @SpringBootTest(webEnvironment = RANDOM_PORT,
 properties = {
-    "spring.config.import=aws-secretsmanager:/spring/secret"
+    "spring.config.import=optional:aws-secretsmanager:/spring/secret"
 })
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -31,17 +31,17 @@ public class AbstractIntegrationTest {
     protected ObjectMapper objectMapper;
 
     static PostgreSQLContainer<?> postgres =
-            new PostgreSQLContainer<>("postgres:15.3-alpine");
+            new PostgreSQLContainer<>("postgres:16-alpine");
 
     static final LocalStackContainer localstack = new LocalStackContainer(
-            DockerImageName.parse("localstack/localstack:2.1.0"))
+            DockerImageName.parse("localstack/localstack:3.4.0"))
             .withCopyFileToContainer(MountableFile.forHostPath("localstack/"), "/etc/localstack/init/ready.d/")
             .waitingFor(Wait.forLogMessage(".*LocalStack initialized successfully\n", 1))
             ;
 
     static {
         Startables.deepStart(postgres, localstack).join();
-
+        System.setProperty("spring.cloud.aws.region.static", localstack.getRegion());
         System.setProperty("spring.cloud.aws.endpoint", localstack.getEndpoint().toString());
         System.setProperty("spring.cloud.aws.credentials.access-key", localstack.getAccessKey());
         System.setProperty("spring.cloud.aws.credentials.secret-key", localstack.getSecretKey());
