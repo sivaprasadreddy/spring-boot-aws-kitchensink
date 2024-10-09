@@ -28,7 +28,7 @@ services:
     restart: unless-stopped
 
   localstack:
-    image: localstack/localstack:3.4.0
+    image: localstack/localstack:3.8.1
     ports:
       - "4566:4566"
     environment:
